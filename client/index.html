@@ -3,84 +3,37 @@
 
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
-    <title>Fly My Drone</title>
-    <link rel="stylesheet" href="client/client.css">
+    <title>Flight Controls</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <script src="/dronestream/nodecopter-client.js" type="text/javascript" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+
     <script src="/socket.io/socket.io.js"></script>
-
-    <style>
-        body {
-            padding: 20px;
-        }
-
-        main {
-            max-width: 640px;
-        }
-
-        button {
-            width: 33%;
-        }
-
-        .videoContainer {
-            width: 100%;
-        }
-
-        .main-controls {
-            padding: 20px 0;
-            display: flex;
-            justify-content: space-around;
-        }
-
-        .main-controls button {
-            width: 45%;
-            height: 50px;
-            font-family: Calibri;
-            font-size: 22px;
-        }
-
-        .flight-controls {
-            border: 1px solid gray;
-            border-radius: 5px;
-        }
-
-        .flight-controls {
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-        }
-
-        .flight-controls button {
-            margin: 5px;
-            height: 50px;
-            width: 30%;
-        }
-    </style>
 </head>
 
 <body>
-<main>
-    <div class="videoContainer">
-        <div id="droneStream"></div>
-    </div>
-    <div class="main-controls">
-        <button class="btn btn-primary" onclick="takeoff()">Takeoff</button>
-        <button class="btn" onclick="land()">Land</button>
-    </div>
-    <div class="speed-control">
-        <button class="btn" onclick="speedUp()">Faster</button>
-        <button class="btn" onclick="speedUp()">Slower</button>
-        <label>Current Speed:</label><span id="current-speed"></span>
-    </div>
+<header>
+    <span class="menu-con">&lt;FLY <span class="beast">my drone</span>/&gt;</span>
+    <span>demo</span>
+</header>
+
+<main class="flight-controls-main">
+    <h1>Flight Controls</h1>
+
     <div class="flight-controls">
+        <div class="row1">
+            <button class="btn btn-primary" onclick="takeoff()">Takeoff</button>
+            <button class="btn" onclick="land()">Land</button>
+        </div>
+        <div class="row2">
+            <button class="btn" onclick="move('up')">UP</button>
+            <button class="btn" onclick="move('down')">Down</button>
+        </div>
         <div>
-            <h2>Flight Controls</h2>
             <button class="btn" onclick="move('counterClockwise')">
                 <span class="glyphicon glyphicon-chevron-left"></span>
             </button>
-            <button class="btn" onclick="move('up')">
+            <button class="btn" onclick="move('front')">
                 <span class="glyphicon glyphicon-arrow-up"></span>
             </button>
             <button class="btn" onclick="move('clockwise')">
@@ -91,7 +44,7 @@
             <button class="btn" onclick="move('left')">
                 <span class="glyphicon glyphicon-arrow-left"></span>
             </button>
-            <button class="btn" onclick="move('down')">
+            <button class="btn" onclick="move('back')">
                 <span class="glyphicon glyphicon-arrow-down"></span>
             </button>
             <button class="btn" onclick="move('right')">
@@ -102,11 +55,7 @@
 </main>
 
 <script>
-    const videoStreamer = new NodecopterStream(document.getElementById("droneStream"));
     const socket = io();
-    const speedUnit = 0.1;
-    const maxSpeed = 2;
-    let speed = 0.1;
 
     function takeoff() {
         socket.emit('takeoff');
@@ -116,58 +65,9 @@
         socket.emit('land');
     }
 
-    function speedUp() {
-        if ((speed + speedUnit) <= maxSpeed) {
-            speed += speedUnit;
-            document.getElementById('current-speed').value = speed;
-        }
-    }
-
-    function speedDown() {
-        if ((speed - speedUnit) >= 0) {
-            speed -= speedUnit;
-            document.getElementById('current-speed').value = speed;
-        }
-    }
-
     function move(direction) {
-        const moveParameters = {
-            direction: direction,
-            speed: speed.toFixed(2)
-        };
-        socket.emit("keyMove", moveParameters)
+        socket.emit('move', direction);
     }
-
-    window.onkeydown = function (e) {
-        const key = e.keyCode ? e.keyCode : e.which;
-        console.log('key addEventListener:' + key);
-
-        switch (key) {
-            case 107:
-                move("up");
-                break;
-            case 109:
-                move("down");
-                break;
-            case 37:
-                move("left");
-                break;
-            case 39:
-                move("right");
-                break;
-            case 38:
-                move("front");
-                break;
-            case 40:
-                move("back");
-                break;
-        }
-    }
-
-    //        document.addEventListener('keydown', (event) => {
-    //            const key = event.key;
-    //            console.log('key addEventListener:' + key);
-    //        });
 </script>
 </body>
 
